@@ -109,6 +109,12 @@ app.post('/webhook/event', async (req, res) => {
 
 app.post('/webhook/card', async (req, res) => {
   const body = req.body
+
+  // 飞书 URL 挑战验证（卡片回调同样需要）
+  if (body.type === 'url_verification') {
+    return res.json({ challenge: body.challenge })
+  }
+
   const action = body.action
   const openId = body.user?.open_id
 
