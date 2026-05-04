@@ -74,6 +74,8 @@ async function replyMessage(messageId, msgType, contentObj) {
 
 app.post('/webhook/event', async (req, res) => {
   const body = req.body
+  console.log('[事件回调] headers:', JSON.stringify(req.headers))
+  console.log('[事件回调] body:', JSON.stringify(body).slice(0, 500))
 
   // 飞书 URL 挑战验证
   if (body.type === 'url_verification') {
