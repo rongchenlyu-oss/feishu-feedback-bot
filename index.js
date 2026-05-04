@@ -93,8 +93,11 @@ app.post('/webhook/event', async (req, res) => {
     return res.json({ challenge: body.challenge })
   }
 
-  // 处理消息事件
-  if (body.type === 'event_callback' && body.event?.type === 'im.message.receive_v1') {
+  // 处理消息事件（支持 Schema 2.0 和新版格式）
+  const eventType = body.header?.event_type || body.event?.type
+
+  if ((body.type === 'event_callback' && body.event?.type === 'im.message.receive_v1') ||
+      (eventType === 'im.message.receive_v1')) {
     const event = body.event
     const message = event.message
     const sender = event.sender
