@@ -12,6 +12,9 @@ app.use(express.json())
 
 let client = null
 
+// 调试日志
+const requestLog = []
+
 // ============================================================
 // 工具函数
 // ============================================================
@@ -69,13 +72,21 @@ async function replyMessage(messageId, msgType, contentObj) {
 }
 
 // ============================================================
+// 调试接口
+// ============================================================
+
+app.get('/debug', (req, res) => {
+  res.json({ requests: requestLog })
+})
+
+// ============================================================
 // Webhook: 事件回调（接收消息、验证挑战）
 // ============================================================
 
 app.post('/webhook/event', async (req, res) => {
   const body = req.body
-  console.log('[事件回调] headers:', JSON.stringify(req.headers))
-  console.log('[事件回调] body:', JSON.stringify(body).slice(0, 500))
+  requestLog.unshift({ time: new Date().toISOString(), type: 'event', summary: JSON.stringify(body).slice(0, 200) })
+  if (requestLog.length > 20) requestLog.pop()
 
   // 飞书 URL 挑战验证
   if (body.type === 'url_verification') {
@@ -111,6 +122,8 @@ app.post('/webhook/event', async (req, res) => {
 
 app.post('/webhook/card', async (req, res) => {
   const body = req.body
+  requestLog.unshift({ time: new Date().toISOString(), type: 'card', summary: JSON.stringify(body).slice(0, 200) })
+  if (requestLog.length > 20) requestLog.pop()
 
   // 飞书 URL 挑战验证（卡片回调同样需要）
   if (body.type === 'url_verification') {
